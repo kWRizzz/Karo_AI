@@ -1,4 +1,4 @@
-package com.karoai.backend;
+package com.karoai;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
