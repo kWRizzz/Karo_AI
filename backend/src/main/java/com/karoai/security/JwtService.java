@@ -1,11 +1,16 @@
 package com.karoai.security;
 
 import java.util.Base64;
+import java.util.Date;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.stereotype.Service;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
 
 @Service 
 public class JwtService {
@@ -26,5 +31,45 @@ public class JwtService {
 
         this.secretKey=new SecretKeySpec(keyBytes, "HmacSHA256");
         this.accessExpiration=accessExpiration;
+    }
+
+    // generate tokens
+
+    public String generateAccessToken(Long userId){
+        Date now= new Date();
+
+        return Jwts.builder()
+            .subject(userId.toString())
+            .issuedAt(now)
+            .expiration(new Date(now.getTime() + accessExpiration))
+            .signWith(secretKey)
+            .compact();
+    }
+
+    // getting  the user using tokens
+
+    public Long extractUserId(String token){
+        Claims claims= Jwts.parser()
+                        .verifyWith(secretKey)
+                        .build()
+                        .parseSignedClaims(token)
+                        .getPayload();
+
+        return Long.parseLong(claims.getSubject());
+    }
+
+    // validating the token 
+
+    public boolean isTokenValid(String token){
+        try {
+            extractUserId(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException ex) {
+            return false;
+        }
+    }
+
+    public long getAccessExpiration() {
+        return accessExpiration;
     }
 }
