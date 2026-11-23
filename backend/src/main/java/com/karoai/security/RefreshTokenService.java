@@ -44,8 +44,9 @@ public class RefreshTokenService {
         return rawToken;
     }
 
+    public record RotationResult(User user, String refreshToken) {}
     @Transactional
-    public User rotateToken(String rawToken) {
+    public RotationResult rotateToken(String rawToken) {
         RefreshToken oldToken = repository.findByTokenHashAndRevokedFalse(hashToken(rawToken))
                 .orElseThrow(() -> new IllegalArgumentException("Ghee Khatam"));
 
@@ -56,9 +57,13 @@ public class RefreshTokenService {
 
         oldToken.setRevoked(true);
         User user= oldToken.getUser();
+        String  newToken= createToken(user);
+
         createToken(user);
-        return user;
+        return new RotationResult(user, newToken);
     }
+
+ 
 
 
     @Transactional 
