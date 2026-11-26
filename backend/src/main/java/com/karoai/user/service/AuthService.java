@@ -3,6 +3,7 @@ package com.karoai.user.service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.karoai.exception.UnauthorizedException;
 import com.karoai.security.JwtService;
 import com.karoai.security.RefreshTokenService;
 import com.karoai.user.dto.AuthResponse;
@@ -34,10 +35,10 @@ public class AuthService {
     public AuthResponse login(LoginRequest request){
         String email= request.email().trim().toLowerCase();
         User user=userRepository.findByEmail(email)
-            .orElseThrow(()-> new IllegalArgumentException("ghee over"));
+            .orElseThrow(()-> new UnauthorizedException("ghee over"));
 
         if(!passwordEncoder.matches(request.password(), user.getPassword())){
-            throw new IllegalArgumentException("Pass and email galat hai ");
+            throw new UnauthorizedException("Pass and email galat hai ");
         }
 
         return generateResponse(user,refreshTokenService.createToken(user));

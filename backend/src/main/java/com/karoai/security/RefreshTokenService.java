@@ -8,6 +8,7 @@ import java.util.Base64;
 
 import org.springframework.beans.factory.annotation.Value;
 
+import com.karoai.exception.UnauthorizedException;
 import com.karoai.user.entity.RefreshToken;
 import com.karoai.user.entity.User;
 import com.karoai.user.repository.RefreshTokenRepository;
@@ -48,11 +49,11 @@ public class RefreshTokenService {
     @Transactional
     public RotationResult rotateToken(String rawToken) {
         RefreshToken oldToken = repository.findByTokenHashAndRevokedFalse(hashToken(rawToken))
-                .orElseThrow(() -> new IllegalArgumentException("Ghee Khatam"));
+                .orElseThrow(() -> new UnauthorizedException("Ghee Khatam"));
 
         if (oldToken.getExpiresAt().isBefore(LocalDateTime.now())) {
             oldToken.setRevoked(true);
-            throw new IllegalArgumentException("Refresh token expired");
+            throw new UnauthorizedException("Refresh token expired");
         }
 
         oldToken.setRevoked(true);
