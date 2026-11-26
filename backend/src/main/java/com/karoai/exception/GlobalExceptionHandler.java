@@ -31,4 +31,13 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.badRequest().body(errors);
     }
+
+    @ExceptionHandler (UnauthorizedException.class)
+    public ResponseEntity<Map<String,String>> handleUnauthorized(
+        UnauthorizedException ex
+    ){
+        return ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .body(Map.of("Message",ex.getMessage()));
+    }
 }
